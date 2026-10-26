@@ -68,3 +68,20 @@ describe('assistant intent routing', () => {
     expect(result.reply).toContain('authorization');
   });
 });
+
+describe('assistant status explanation', () => {
+  it('explains the code the user asked about, even when another request is loaded', () => {
+    const loaded = diagnosisInputSchema.parse({
+      method: 'POST',
+      url: 'https://api.acme.dev/v1/invoices/8412/approve',
+      statusCode: 401,
+      requestHeaders: 'Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE3NjE1NDAwMDB9.sig',
+      responseBody: '{"error":"invalid_token"}',
+      errorMessage: '401',
+    });
+    const result = runLocalAssistant('What does 429 mean?', loaded, null);
+    expect(result.actions.map((action) => action.name)).toContain('explain');
+    expect(result.reply).toContain('429');
+    expect(result.reply).not.toMatch(/401 Unauthorized —/);
+  });
+});

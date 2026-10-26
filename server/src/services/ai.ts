@@ -1,6 +1,7 @@
 import { config } from '../config.js';
 import { diagnosisSchema, type Diagnosis, type DiagnosisInput } from '../schema.js';
 import { statusText } from './localEngine.js';
+import { redactInput } from '../utils/redact.js';
 
 export class AiError extends Error {
   constructor(
@@ -180,9 +181,14 @@ export async function diagnoseWithModel(input: DiagnosisInput): Promise<ModelDia
     throw new AiError('No model provider is configured.', 'not_configured');
   }
 
+  // Defence in depth: callers redact too, but the service must never put a
+  // credential on the wire even if a future caller forgets. redactInput is
+  // idempotent, so redacting an already-redacted input is a no-op.
+  const safeInput = redactInput(input).input;
+
   const messages = [
     { role: 'system', content: SYSTEM_PROMPT },
-    { role: 'user', content: buildUserPrompt(input) },
+    { role: 'user', content: buildUserPrompt(safeInput) },
   ];
 
   const first = await callChat(messages, 0.2);
@@ -226,7 +232,7 @@ export async function diagnoseWithModel(input: DiagnosisInput): Promise<ModelDia
   }
 
   return {
-    diagnosis: normalise(result.data, input),
+    diagnosis: normalise(result.data, safeInput),
     model: config.ai.model,
     notes,
   };
@@ -287,18 +293,19 @@ export async function chatWithModel(
     throw new AiError('No model provider is configured.', 'not_configured');
   }
 
+  const safeContext = context.input ? redactInput(context.input).input : null;
   const contextBlock = JSON.stringify(
     {
-      currentRequest: context.input
+      currentRequest: safeContext
         ? {
-            method: context.input.method,
-            url: context.input.url,
-            statusCode: context.input.statusCode,
-            requestHeaders: context.input.requestHeaders,
-            requestBody: context.input.requestBody,
-            responseBody: context.input.responseBody,
-            errorMessage: context.input.errorMessage,
-            serverLogs: context.input.logs,
+            method: safeContext.method,
+            url: safeContext.url,
+            statusCode: safeContext.statusCode,
+            requestHeaders: safeContext.requestHeaders,
+            requestBody: safeContext.requestBody,
+            responseBody: safeContext.responseBody,
+            errorMessage: safeContext.errorMessage,
+            serverLogs: safeContext.logs,
           }
         : null,
       currentDiagnosis: context.diagnosis,

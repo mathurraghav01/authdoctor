@@ -1,5 +1,5 @@
 import type { Diagnosis, DiagnosisInput } from '../schema.js';
-import { extractSignals, parseHeaders, type RequestSignals } from '../utils/request.js';
+import { extractSignals, hostOf, parseHeaders, type RequestSignals } from '../utils/request.js';
 import { redactInput } from '../utils/redact.js';
 
 /**
@@ -570,7 +570,7 @@ function networkFailure(input: DiagnosisInput, signals: RequestSignals): Playboo
       { cause: 'The server is slow rather than down', likelihood: 'medium', note: 'A timeout can be a latency problem; check server latency before assuming an outage.' },
     ],
     steps: [
-      { title: 'Resolve the hostname', detail: 'Run `dig +short <host>` or `nslookup <host>` from the same network as the failing client.', command: input.url ? `dig +short ${new URL(input.url).hostname}` : undefined },
+      { title: 'Resolve the hostname', detail: 'Run `dig +short <host>` or `nslookup <host>` from the same network as the failing client.', command: hostOf(input.url) ? `dig +short ${hostOf(input.url)}` : undefined },
       { title: 'Test the TCP/TLS path', detail: 'Use `curl -v --max-time 10 <url>` to see whether DNS, TCP, TLS or the HTTP response is the phase that fails.' },
       { title: 'Check proxy and egress rules', detail: 'Confirm HTTP(S)_PROXY and NO_PROXY are correct and that the destination is allow-listed.' },
       { title: 'Compare timeouts', detail: 'If TLS and TCP succeed, raise the client timeout and measure server latency before retrying.' },

@@ -97,6 +97,8 @@ This project was built inside Alan with open models. The integration is delibera
 - This build was created in an environment with **no Alan inference credential injected**. Alan's MCP tools are capabilities of the host agent session, not a public HTTP API a third-party web app can call with a browser token — so wrapping them here would mean inventing an integration. It was not done.
 - To run in model mode you need: a base URL, a model id, and an API key for an OpenAI-compatible endpoint (`AI_BASE_URL`, `AI_MODEL`, `AI_API_KEY`). That is the only missing requirement. Everything else — schema validation, repair pass, timeout handling, fallback — is implemented and tested.
 
+**Using Claude.** The adapter speaks the OpenAI Chat Completions shape (`POST {AI_BASE_URL}/chat/completions`). Anthropic's native API does not, so point `AI_BASE_URL` at an OpenAI-compatible gateway in front of Claude (for example a self-hosted LiteLLM proxy) and set `AI_MODEL` to the model alias that gateway exposes. No application code changes are required. The model path in this repository was exercised against a local OpenAI-compatible stub, not against a live Claude endpoint — no Claude credential was available in the build environment.
+
 If you are wiring this into a specific Alan deployment, set those three variables and use **Copy for Alan** as the handoff boundary.
 
 ## Architecture
@@ -209,7 +211,7 @@ Everything above works with zero configuration in Local mode.
 ## Tests
 
 ```bash
-npm test          # 33 Vitest cases
+npm test          # 46 Vitest cases
 npm run typecheck # server + client
 npm run build     # server tsc + client vite build
 npm run lint      # client ESLint

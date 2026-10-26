@@ -163,3 +163,20 @@ describe('diagnosis precedence', () => {
     expect(diagnosis.title.toLowerCase()).toContain('timeout');
   });
 });
+
+describe('tolerant input', () => {
+  it('does not throw on a malformed URL and omits the host-specific command', () => {
+    const parsed = input({ url: 'not-a-url', statusCode: null, errorMessage: 'connect ECONNREFUSED' });
+    const diagnosis = runLocalDiagnosis(parsed, NOW);
+    expect(diagnosis.title.toLowerCase()).toContain('refused');
+    const resolve = diagnosis.steps.find((step) => step.title === 'Resolve the hostname');
+    expect(resolve?.command).toBeUndefined();
+  });
+
+  it('still emits a dig command for a valid URL', () => {
+    const parsed = input({ url: 'https://api.example.com/v1/thing', statusCode: null, errorMessage: 'connect ETIMEDOUT' });
+    const diagnosis = runLocalDiagnosis(parsed, NOW);
+    const resolve = diagnosis.steps.find((step) => step.title === 'Resolve the hostname');
+    expect(resolve?.command).toBe('dig +short api.example.com');
+  });
+});

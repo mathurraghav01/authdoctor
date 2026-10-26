@@ -51,14 +51,16 @@ function describeDiagnosis(diagnosis: Diagnosis, engineLabel: string): string {
 }
 
 function compareReply(codes: number[]): string {
-  const pair = codes.length >= 2 ? codes.slice(0, 2) : [401, 403];
+  // Explain exactly the codes that were asked about; only fall back to the
+  // 401/403 pair when the caller supplied none.
+  const pair = codes.length > 0 ? codes.slice(0, 2) : [401, 403];
   const lines = ['| Status | Meaning | Fix |', '| --- | --- | --- |'];
   for (const code of pair) {
     const ref = STATUS_REFERENCE[code];
     if (ref) lines.push(`| **${code} ${ref.name}** | ${ref.means} | ${ref.fix} |`);
     else lines.push(`| **${code}** | Not in the local reference. | Inspect the response body and logs. |`);
   }
-  if (pair[0] === 401 && pair[1] === 403) {
+  if (pair.includes(401) && pair.includes(403)) {
     lines.push(
       '',
       'The practical test: refresh the token. If the fresh token still returns the same status, it is **403** (authorization), not 401. Refreshing fixes 401; it never fixes a missing scope.',
@@ -144,7 +146,9 @@ export function runLocalAssistant(message: string, input: DiagnosisInput | null,
     return { reply: content, actions, diagnosis };
   }
 
-  if (intent === 'explain' && !hasRequest) {
+  // An explicit "what does 429 mean?" must explain 429 even when a different
+  // request is loaded, instead of falling through to the loaded diagnosis.
+  if (intent === 'explain') {
     const codes = codesIn(message);
     const content = compareReply(codes);
     actions.push({ name: 'explain', label: `Explained ${codes.join(', ')}`, content });

@@ -230,6 +230,14 @@ export function extractSignals(input: DiagnosisInput, now = Date.now()): Request
   };
 }
 
+export function hostOf(url: string): string | null {
+  try {
+    return new URL(url).hostname || null;
+  } catch {
+    return null;
+  }
+}
+
 export function originOf(url: string): string | null {
   try {
     return new URL(url).origin;
