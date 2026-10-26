@@ -1,5 +1,7 @@
 # AuthDoctor
 
+[![CI](https://github.com/mathurraghav01/authdoctor/actions/workflows/ci.yml/badge.svg)](https://github.com/mathurraghav01/authdoctor/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 **An open-source debugging workspace for failed API requests.** Paste the request, the response, the error and any server logs. AuthDoctor separates what it can verify from what it is inferring, then gives you a root cause, a fix, next steps and a corrected `curl` command.
 
 Built for the **OpenFire Hackathon** — open source, open models, and a first-class handoff into an Alan AI session.

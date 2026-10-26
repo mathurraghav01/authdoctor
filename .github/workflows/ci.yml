@@ -19,3 +19,21 @@ jobs:
       - run: npm test
       - run: npm run lint
       - run: npm run build
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t authdoctor .
+      - name: Serve the image and check the API
+        run: |
+          docker run -d --name authdoctor -p 8787:8787 authdoctor
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8787/api/health > /dev/null; then break; fi
+            sleep 2
+          done
+          curl -sf http://localhost:8787/api/health
+          curl -sf -o /dev/null http://localhost:8787/
+          docker logs authdoctor
+          docker rm -f authdoctor
