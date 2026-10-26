@@ -33,7 +33,10 @@ export function DiagnoseBar({ draft, loading, error, details, hasResult, onDiagn
   }, [loading]);
 
   return (
-    <div className="sticky bottom-0 z-20 -mx-4 mt-1 border-t border-line bg-ink-950/92 px-4 py-3 backdrop-blur">
+    // Sticky only once the diagnosis panel is a separate column (xl+). Below
+    // that the panel scrolls under this bar, so a sticky bar would cover the
+    // result it just produced.
+    <div className="z-20 -mx-4 mt-1 border-t border-line bg-ink-950/92 px-4 py-3 backdrop-blur xl:sticky xl:bottom-0">
       <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
         <div className="min-w-0 flex-1">
           {error ? (

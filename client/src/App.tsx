@@ -285,7 +285,7 @@ export default function App() {
         </header>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden xl:flex-row xl:overflow-hidden">
-          <main className="flex min-h-0 min-w-0 flex-col xl:flex-1">
+          <main className="flex min-h-0 min-w-0 flex-col max-xl:shrink-0 xl:flex-1">
             <div className="min-w-0 overflow-x-hidden px-3 pt-3 sm:px-4 sm:pt-4 xl:scrollbar-thin xl:min-h-0 xl:flex-1 xl:overflow-y-auto">
               <RequestEditor draft={draft} onChange={patchDraft} disabled={loading} />
               <div className="mt-3">
@@ -306,7 +306,7 @@ export default function App() {
             </div>
           </main>
 
-          <aside className="flex w-full flex-col border-t border-line bg-ink-900/40 xl:min-h-0 xl:w-[444px] xl:shrink-0 xl:border-l xl:border-t-0 2xl:w-[480px]">
+          <aside className="flex w-full max-xl:shrink-0 flex-col border-t border-line bg-ink-900/40 xl:min-h-0 xl:w-[444px] xl:shrink-0 xl:border-l xl:border-t-0 2xl:w-[480px]">
             <div className="sticky top-0 z-10 flex h-[46px] shrink-0 items-center gap-1 border-b border-line bg-ink-900/95 px-3 backdrop-blur xl:static xl:bg-transparent">
               <button
                 type="button"
